@@ -11,6 +11,7 @@ module.exports = (app) => {
         return;
       }
       res.forEach((component) => {
+        // eslint-disable-next-line global-require,import/no-dynamic-require
         const instance = require(path.resolve(componentDir, component));
         const name = path.basename(component, path.extname(component));
         loader.registerComponent('signalk', name, instance.getComponent(app));

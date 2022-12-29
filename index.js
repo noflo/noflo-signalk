@@ -1,5 +1,4 @@
 const server = require('noflo-nodejs');
-const noflo = require('noflo');
 const nofloServer = require('noflo-nodejs/src/server');
 const fbpGraph = require('fbp-graph');
 const { v4: uuidv4 } = require('uuid');
@@ -11,11 +10,9 @@ function ensureGraphs(baseDir) {
   const graphDir = path.resolve(baseDir, './graphs');
   return readdir(graphDir)
     .catch((err) => {
-      if (err.code == 'ENOENT') {
+      if (err.code === 'ENOENT') {
         return mkdir(graphDir)
-          .then(() => {
-            return [];
-          });
+          .then(() => []);
       }
       throw err;
     })
@@ -30,20 +27,18 @@ function ensureGraphs(baseDir) {
           },
         });
         return graph.save(graphPath)
-          .then(() => {
-            return [
-              graphPath,
-            ];
-          });
+          .then(() => [
+            graphPath,
+          ]);
       }
-      return res.map(r => path.resolve(graphDir, r));
+      return res.map((r) => path.resolve(graphDir, r));
     });
 }
 
 module.exports = (app) => {
   let runtime = null;
   let runtimeConfig = null;
-  let plugin = {};
+  const plugin = {};
 
   plugin.id = 'noflo-signalk';
   plugin.name = 'NoFlo Signal K';
@@ -59,20 +54,18 @@ module.exports = (app) => {
     const customLoader = componentLoader(app);
     const loader = rt.component.getLoader(config.baseDir, rt.options);
     return loader.listComponents()
-      .then(() => {
-        return new Promise((resolve, reject) => {
-          loader.registerLoader(customLoader, (err) => {
-            if (err) {
-              reject(err);
-              return;
-            }
-            resolve();
-          });
+      .then(() => new Promise((resolve, reject) => {
+        loader.registerLoader(customLoader, (err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve();
         });
-      });
+      }));
   }
 
-  plugin.start = (options, restartPlugin) => {
+  plugin.start = (options) => {
     const port = options.port || 3569;
     // FIXME: Determine whether to use HTTPS or HTTP
     const ide = options.ide || 'https://app.flowhub.io';
@@ -93,15 +86,15 @@ module.exports = (app) => {
     };
     ensureGraphs(baseDir)
       .then((graphs) => {
-          server(graphs[0], config, preStart)
-        .then((rt) => {
-          runtime = rt;
-          app.setPluginStatus(`NoFlo runtime running in port ${port}`);
-          // TODO: Start all other graphs as well
-        }, (err) => {
-          app.debug(err);
-          app.setPluginError(`Failed to start NoFlo runtime: ${err.message}`);
-        });
+        server(graphs[0], config, preStart)
+          .then((rt) => {
+            runtime = rt;
+            app.setPluginStatus(`NoFlo runtime running in port ${port}`);
+            // TODO: Start all other graphs as well
+          }, (err) => {
+            app.debug(err);
+            app.setPluginError(`Failed to start NoFlo runtime: ${err.message}`);
+          });
       });
   };
 
@@ -129,7 +122,6 @@ module.exports = (app) => {
       }, (err) => {
         app.debug('Failed to stop the NoFlo runtime');
         app.debug(err);
-        return;
       });
   };
 
