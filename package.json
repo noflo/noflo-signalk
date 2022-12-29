@@ -4,7 +4,7 @@
   "description": "Signal K automation with the NoFlo visual programming framework",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint *.js apiComponents/*.js",
+    "lint": "eslint *.js apiComponents/*.js components/*.js",
     "test": "npm run lint"
   },
   "repository": {
