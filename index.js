@@ -88,7 +88,6 @@ module.exports = (app) => {
           // TODO: Start all graphs
         }, (err) => {
           app.debug(err);
-          console.log(err);
           app.setPluginError(`Failed to start NoFlo runtime: ${err.message}`);
         });
       });
