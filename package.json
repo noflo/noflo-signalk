@@ -1,0 +1,29 @@
+{
+  "name": "noflo-signalk",
+  "version": "0.1.0",
+  "description": "Signal K automation with the NoFlo visual programming framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/noflo/noflo-signalk.git"
+  },
+  "keywords": [
+    "noflo",
+    "ecosystem:noflo",
+    "signalk-node-server-plugin",
+    "signalk-webapp"
+  ],
+  "author": "Henri Bergius <henri.bergius@iki.fi>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/noflo/noflo-signalk/issues"
+  },
+  "homepage": "https://github.com/noflo/noflo-signalk#readme",
+  "dependencies": {
+    "noflo": "^1.4.3",
+    "noflo-nodejs": "^0.15.1"
+  }
+}
