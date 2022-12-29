@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>NoFlo in Signal K</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #ide {
+        border: 0;
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="ide"></iframe>
+    <script>
+      const ide = document.getElementById('ide');
+      fetch('/plugins/noflo-signalk/url')
+        .then((res) => res.text())
+        .then((url) => {
+                console.log(url);
+          ide.setAttribute('src', url);
+        });
+    </script>
+  </body>
+</html>

@@ -14,6 +14,7 @@
     "noflo",
     "ecosystem:noflo",
     "signalk-node-server-plugin",
+    "signalk-category-utility",
     "signalk-webapp"
   ],
   "author": "Henri Bergius <henri.bergius@iki.fi>",
@@ -23,7 +24,13 @@
   },
   "homepage": "https://github.com/noflo/noflo-signalk#readme",
   "dependencies": {
+    "fbp-graph": "^0.7.0",
     "noflo": "^1.4.3",
-    "noflo-nodejs": "^0.15.1"
+    "noflo-nodejs": "^0.15.1",
+    "uuid": "^9.0.0"
+  },
+  "signalk": {
+    "appIcon": "./noflo-72.png",
+    "displayName": "NoFlo Editor"
   }
 }
