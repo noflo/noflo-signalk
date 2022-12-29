@@ -5,6 +5,7 @@ const fbpGraph = require('fbp-graph');
 const { v4: uuidv4 } = require('uuid');
 const { readdir, mkdir } = require('node:fs/promises');
 const path = require('path');
+const componentLoader = require('./componentLoader');
 
 function ensureGraphs(baseDir) {
   const graphDir = path.resolve(baseDir, './graphs');
@@ -54,8 +55,21 @@ module.exports = (app) => {
 
   function preStart(rt, config) {
     runtimeConfig = config;
-    // TODO: Custom component loading with app context here
-    return Promise.resolve();
+    // Custom component loading with app context here
+    const customLoader = componentLoader(app);
+    const loader = rt.component.getLoader(config.baseDir, rt.options);
+    return loader.listComponents()
+      .then(() => {
+        return new Promise((resolve, reject) => {
+          loader.registerLoader(customLoader, (err) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve();
+          });
+        });
+      });
   }
 
   plugin.start = (options, restartPlugin) => {
