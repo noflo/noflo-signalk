@@ -22,6 +22,13 @@ exports.getComponent = (app) => () => {
   };
   c.process((input, output, context) => {
     const path = input.getData('in');
+
+    // Start with initial value, if available
+    output.send({
+      out: app.getSelfPath(path),
+    });
+
+    // Then subscribe
     const unsub = app.streambundle
       .getSelfStream(path)
       .forEach((val) => {
