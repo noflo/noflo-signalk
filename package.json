@@ -32,5 +32,8 @@
   "signalk": {
     "appIcon": "./noflo-72.png",
     "displayName": "NoFlo Editor"
+  },
+  "noflo": {
+    "icon": "anchor"
   }
 }

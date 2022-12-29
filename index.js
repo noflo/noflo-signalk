@@ -80,8 +80,6 @@ module.exports = (app) => {
     // We need to use the .signalk directory as baseDir to be able to load components
     const baseDir = path.resolve(app.getDataDirPath(), '../../');
 
-    // TODO: Load a list of locally stored graphs
-    // TODO: Provide first graph path
     const config = {
       id: options.uuid,
       label: `NoFlo on ${app.getSelfPath('name')}`,
@@ -99,7 +97,7 @@ module.exports = (app) => {
         .then((rt) => {
           runtime = rt;
           app.setPluginStatus(`NoFlo runtime running in port ${port}`);
-          // TODO: Start all graphs
+          // TODO: Start all other graphs as well
         }, (err) => {
           app.debug(err);
           app.setPluginError(`Failed to start NoFlo runtime: ${err.message}`);
