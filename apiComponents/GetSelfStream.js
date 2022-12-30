@@ -22,10 +22,14 @@ exports.getComponent = (app) => () => {
   };
   c.process((input, output, context) => {
     const path = input.getData('in');
+    let initial = app.getSelfPath(path);
+    if (typeof initial === 'object' && initial.meta) {
+      initial = initial.value;
+    }
 
     // Start with initial value, if available
     output.send({
-      out: app.getSelfPath(path),
+      out: initial,
     });
 
     // Then subscribe
