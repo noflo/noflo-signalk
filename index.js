@@ -35,6 +35,14 @@ function ensureGraphs(baseDir) {
     });
 }
 
+function findMain(graphs) {
+  const mainable = graphs.find((g) => g.includes('main'));
+  if (mainable) {
+    return mainable;
+  }
+  return graphs[0];
+}
+
 module.exports = (app) => {
   let runtime = null;
   let runtimeConfig = null;
@@ -81,12 +89,14 @@ module.exports = (app) => {
       autoSave: true,
       trace: options.trace,
       protocol: options.protocol || 'websocket',
+      catchExceptions: false,
       ide,
       baseDir,
     };
     ensureGraphs(baseDir)
       .then((graphs) => {
-        server(graphs[0], config, preStart)
+        const main = findMain(graphs);
+        server(main, config, preStart)
           .then((rt) => {
             runtime = rt;
             app.setPluginStatus(`NoFlo runtime running in port ${port}`);
