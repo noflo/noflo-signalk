@@ -31,8 +31,8 @@ exports.getComponent = () => {
     }
     const value = input.getData('in');
     const values = indexesWithData.map((idx) => input.getData(['values', idx]));
-    const containsFalsy = values.find((v) => !v);
-    if (containsFalsy) {
+    const containsFalsy = values.findIndex((v) => !v);
+    if (containsFalsy !== -1) {
       output.sendDone({
         fail: value,
       });
