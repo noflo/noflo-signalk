@@ -27,7 +27,7 @@
   "dependencies": {
     "fbp-graph": "^0.7.0",
     "noflo": "^1.4.3",
-    "noflo-nodejs": "^0.15.2",
+    "noflo-nodejs": "^0.15.3",
     "uuid": "^9.0.0"
   },
   "signalk": {
