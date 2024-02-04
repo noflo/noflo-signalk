@@ -89,7 +89,7 @@ module.exports = (app) => {
       autoSave: true,
       trace: options.trace,
       protocol: options.protocol || 'websocket',
-      catchExceptions: false,
+      catchExceptions: true,
       ide,
       baseDir,
     };
