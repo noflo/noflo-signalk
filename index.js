@@ -76,7 +76,7 @@ module.exports = (app) => {
   plugin.start = (options) => {
     const port = options.port || 3569;
     // FIXME: Determine whether to use HTTPS or HTTP
-    const ide = options.ide || 'https://app.flowhub.io';
+    const ide = options.ide || 'https://app.noflojs.org';
 
     // We need to use the .signalk directory as baseDir to be able to load components
     const baseDir = path.resolve(app.getDataDirPath(), '../../');
@@ -154,10 +154,10 @@ module.exports = (app) => {
         default: uuidv4(),
       },
       ide: {
-        title: 'Flowhub / NoFlo UI instance URL',
+        title: 'NoFlo UI instance URL',
         type: 'string',
         format: 'uri',
-        default: 'https://app.flowhub.io',
+        default: 'https://app.noflojs.org',
       },
       protocol: {
         title: 'FBP protocol transport to use',
