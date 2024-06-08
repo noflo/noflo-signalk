@@ -1,6 +1,6 @@
 {
   "name": "noflo-signalk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Signal K automation with the NoFlo visual programming framework",
   "main": "index.js",
   "scripts": {

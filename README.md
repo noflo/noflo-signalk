@@ -11,6 +11,8 @@ Status: early stages
 
 ## Changes
 
+* 0.2.1 (2024-06-08)
+  - Added an `All` component for checking that all input values are truthy
 * 0.2.0 (2023-01-12)
   - Fixed main graph detection
   - Now using the community version of NoFlo UI
