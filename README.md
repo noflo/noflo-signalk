@@ -11,6 +11,8 @@ Status: early stages
 
 ## Changes
 
+* 0.2.2 (2024-06-11)
+  - Added a triggering inport for the `All` component to allow differing timings for the value inputs
 * 0.2.1 (2024-06-08)
   - Added an `All` component for checking that all input values are truthy
 * 0.2.0 (2023-01-12)
