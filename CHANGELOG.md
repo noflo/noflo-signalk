@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-06
+
 ### Changed
 
 - Replaced ESLint with Biome for formatting and linting, renamed the smoke tests to the `test/*.test.js` convention, and require Node.js 22 or later
