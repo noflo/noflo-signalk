@@ -3,9 +3,12 @@
   "version": "0.2.2",
   "description": "Signal K automation with the NoFlo visual programming framework",
   "main": "index.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "lint": "eslint *.js apiComponents/*.js components/*.js",
-    "test": "npm run lint"
+    "test": "npm run lint && node --test --test-force-exit test/startup.js"
   },
   "repository": {
     "type": "git",
@@ -34,7 +37,7 @@
     "appIcon": "./noflo-72.png",
     "displayName": "NoFlo Editor",
     "screenshots": [
-      "./doc/automatic-lights.png",
+      "./doc/automatic-lights.png"
     ]
   },
   "noflo": {

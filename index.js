@@ -43,6 +43,21 @@ function findMain(graphs) {
   return graphs[0];
 }
 
+// NoFlo may reject with values that are not Error instances
+function errorMessage(err) {
+  if (!err) {
+    return 'unknown error';
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return String(err.message || err);
+}
+
+function graphName(graphPath) {
+  return path.basename(graphPath, path.extname(graphPath));
+}
+
 module.exports = (app) => {
   let runtime = null;
   let runtimeConfig = null;
@@ -74,7 +89,7 @@ module.exports = (app) => {
   }
 
   plugin.start = (options) => {
-    const port = options.port || 3569;
+    const port = typeof options.port === 'number' ? options.port : 3569;
     // FIXME: Determine whether to use HTTPS or HTTP
     const ide = options.ide || 'https://app.noflojs.org';
 
@@ -92,19 +107,30 @@ module.exports = (app) => {
       catchExceptions: true,
       ide,
       baseDir,
+      port,
     };
-    ensureGraphs(baseDir)
+    // Report startup progress immediately so Signal K doesn't show the
+    // default "Started" state while the async runtime boot is still running
+    app.setPluginStatus('Starting NoFlo runtime');
+
+    return ensureGraphs(baseDir)
       .then((graphs) => {
         const main = findMain(graphs);
-        server(main, config, preStart)
+        const mainGraphName = graphName(main);
+        app.setPluginStatus(`Starting main graph ${mainGraphName}`);
+        return server(main, config, preStart)
           .then((rt) => {
             runtime = rt;
-            app.setPluginStatus(`NoFlo runtime running in port ${port}`);
+            const boundPort = rt.webServer.address().port;
+            app.setPluginStatus(`NoFlo runtime running in port ${boundPort}`);
             // TODO: Start all other graphs as well
           }, (err) => {
             app.debug(err);
-            app.setPluginError(`Failed to start NoFlo runtime: ${err.message}`);
+            app.setPluginError(`Failed to start main graph ${mainGraphName}: ${errorMessage(err)}`);
           });
+      }, (err) => {
+        app.debug(err);
+        app.setPluginError(`Failed to prepare NoFlo graphs: ${errorMessage(err)}`);
       });
   };
 
