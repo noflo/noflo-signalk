@@ -1,42 +1,38 @@
-const server = require('noflo-nodejs');
-const nofloServer = require('noflo-nodejs/src/server');
-const fbpGraph = require('fbp-graph');
-const { v4: uuidv4 } = require('uuid');
-const { readdir, mkdir } = require('node:fs/promises');
-const path = require('path');
-const componentLoader = require('./componentLoader');
+const server = require("noflo-nodejs");
+const nofloServer = require("noflo-nodejs/src/server");
+const fbpGraph = require("fbp-graph");
+const { v4: uuidv4 } = require("uuid");
+const { readdir, mkdir } = require("node:fs/promises");
+const path = require("node:path");
+const componentLoader = require("./componentLoader");
 
 function ensureGraphs(baseDir) {
-  const graphDir = path.resolve(baseDir, './graphs');
+  const graphDir = path.resolve(baseDir, "./graphs");
   return readdir(graphDir)
     .catch((err) => {
-      if (err.code === 'ENOENT') {
-        return mkdir(graphDir)
-          .then(() => []);
+      if (err.code === "ENOENT") {
+        return mkdir(graphDir).then(() => []);
       }
       throw err;
     })
     .then((res) => {
       if (!res.length) {
         // No graphs, create a "main"
-        const graphPath = path.resolve(graphDir, 'main.json');
-        const graph = fbpGraph.graph.createGraph('main');
+        const graphPath = path.resolve(graphDir, "main.json");
+        const graph = fbpGraph.graph.createGraph("main");
         graph.setProperties({
           environment: {
-            type: 'noflo-nodejs',
+            type: "noflo-nodejs",
           },
         });
-        return graph.save(graphPath)
-          .then(() => [
-            graphPath,
-          ]);
+        return graph.save(graphPath).then(() => [graphPath]);
       }
       return res.map((r) => path.resolve(graphDir, r));
     });
 }
 
 function findMain(graphs) {
-  const mainable = graphs.find((g) => g.includes('main'));
+  const mainable = graphs.find((g) => g.includes("main"));
   if (mainable) {
     return mainable;
   }
@@ -46,7 +42,7 @@ function findMain(graphs) {
 // NoFlo may reject with values that are not Error instances
 function errorMessage(err) {
   if (!err) {
-    return 'unknown error';
+    return "unknown error";
   }
   if (err instanceof Error) {
     return err.message;
@@ -63,12 +59,13 @@ module.exports = (app) => {
   let runtimeConfig = null;
   const plugin = {};
 
-  plugin.id = 'noflo-signalk';
-  plugin.name = 'NoFlo Signal K';
-  plugin.description = 'Signal K automation with the NoFlo visual programming framework';
-  let skUuid = app.getSelfPath('uuid');
+  plugin.id = "noflo-signalk";
+  plugin.name = "NoFlo Signal K";
+  plugin.description =
+    "Signal K automation with the NoFlo visual programming framework";
+  let skUuid = app.getSelfPath("uuid");
   if (skUuid) {
-    skUuid = skUuid.split(':').pop();
+    skUuid = skUuid.split(":").pop();
   }
 
   function preStart(rt, config) {
@@ -76,34 +73,36 @@ module.exports = (app) => {
     // Custom component loading with app context here
     const customLoader = componentLoader(app);
     const loader = rt.component.getLoader(config.baseDir, rt.options);
-    return loader.listComponents()
-      .then(() => new Promise((resolve, reject) => {
-        loader.registerLoader(customLoader, (err) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve();
-        });
-      }));
+    return loader.listComponents().then(
+      () =>
+        new Promise((resolve, reject) => {
+          loader.registerLoader(customLoader, (err) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve();
+          });
+        }),
+    );
   }
 
   plugin.start = (options) => {
-    const port = typeof options.port === 'number' ? options.port : 3569;
+    const port = typeof options.port === "number" ? options.port : 3569;
     // FIXME: Determine whether to use HTTPS or HTTP
-    const ide = options.ide || 'https://app.noflojs.org';
+    const ide = options.ide || "https://app.noflojs.org";
 
     // We need to use the .signalk directory as baseDir to be able to load components
-    const baseDir = path.resolve(app.getDataDirPath(), '../../');
+    const baseDir = path.resolve(app.getDataDirPath(), "../../");
 
     const config = {
       id: options.uuid,
-      label: `NoFlo on ${app.getSelfPath('name')}`,
+      label: `NoFlo on ${app.getSelfPath("name")}`,
       secret: options.secret,
       open: false,
       autoSave: true,
       trace: options.trace,
-      protocol: options.protocol || 'websocket',
+      protocol: options.protocol || "websocket",
       catchExceptions: true,
       ide,
       baseDir,
@@ -111,31 +110,39 @@ module.exports = (app) => {
     };
     // Report startup progress immediately so Signal K doesn't show the
     // default "Started" state while the async runtime boot is still running
-    app.setPluginStatus('Starting NoFlo runtime');
+    app.setPluginStatus("Starting NoFlo runtime");
 
-    return ensureGraphs(baseDir)
-      .then((graphs) => {
+    return ensureGraphs(baseDir).then(
+      (graphs) => {
         const main = findMain(graphs);
         const mainGraphName = graphName(main);
         app.setPluginStatus(`Starting main graph ${mainGraphName}`);
-        return server(main, config, preStart)
-          .then((rt) => {
+        return server(main, config, preStart).then(
+          (rt) => {
             runtime = rt;
             const boundPort = rt.webServer.address().port;
             app.setPluginStatus(`NoFlo runtime running in port ${boundPort}`);
             // TODO: Start all other graphs as well
-          }, (err) => {
+          },
+          (err) => {
             app.debug(err);
-            app.setPluginError(`Failed to start main graph ${mainGraphName}: ${errorMessage(err)}`);
-          });
-      }, (err) => {
+            app.setPluginError(
+              `Failed to start main graph ${mainGraphName}: ${errorMessage(err)}`,
+            );
+          },
+        );
+      },
+      (err) => {
         app.debug(err);
-        app.setPluginError(`Failed to prepare NoFlo graphs: ${errorMessage(err)}`);
-      });
+        app.setPluginError(
+          `Failed to prepare NoFlo graphs: ${errorMessage(err)}`,
+        );
+      },
+    );
   };
 
   plugin.registerWithRouter = (router) => {
-    router.get('/url', (req, res) => {
+    router.get("/url", (_req, res) => {
       if (!runtime) {
         res.sendStatus(404);
         return;
@@ -149,59 +156,55 @@ module.exports = (app) => {
     if (!runtime) {
       return;
     }
-    app.debug('Stopping NoFlo runtime');
+    app.debug("Stopping NoFlo runtime");
     // TODO: Stop running NoFlo networks as well
-    nofloServer.stop(runtime)
-      .then(() => {
-        app.debug('NoFlo runtime stopped');
+    nofloServer.stop(runtime).then(
+      () => {
+        app.debug("NoFlo runtime stopped");
         runtime = null;
-      }, (err) => {
-        app.debug('Failed to stop the NoFlo runtime');
+      },
+      (err) => {
+        app.debug("Failed to stop the NoFlo runtime");
         app.debug(err);
-      });
+      },
+    );
   };
 
   plugin.schema = {
-    type: 'object',
-    required: [
-      'uuid',
-      'secret',
-    ],
+    type: "object",
+    required: ["uuid", "secret"],
     properties: {
       uuid: {
-        title: 'Server instance UUID',
-        type: 'string',
-        format: 'uuid',
+        title: "Server instance UUID",
+        type: "string",
+        format: "uuid",
         default: skUuid || uuidv4(),
       },
       secret: {
-        title: 'Server instance password',
-        type: 'string',
+        title: "Server instance password",
+        type: "string",
         default: uuidv4(),
       },
       ide: {
-        title: 'NoFlo UI instance URL',
-        type: 'string',
-        format: 'uri',
-        default: 'https://app.noflojs.org',
+        title: "NoFlo UI instance URL",
+        type: "string",
+        format: "uri",
+        default: "https://app.noflojs.org",
       },
       protocol: {
-        title: 'FBP protocol transport to use',
-        type: 'string',
-        enum: [
-          'websocket',
-          'webrtc',
-        ],
-        default: 'websocket',
+        title: "FBP protocol transport to use",
+        type: "string",
+        enum: ["websocket", "webrtc"],
+        default: "websocket",
       },
       port: {
-        title: 'FBP Protocol port for the IDE to connect to',
-        type: 'number',
+        title: "FBP Protocol port for the IDE to connect to",
+        type: "number",
         default: 3569,
       },
       trace: {
-        title: 'Whether to capture and store a Flowtrace for each graph',
-        type: 'boolean',
+        title: "Whether to capture and store a Flowtrace for each graph",
+        type: "boolean",
         default: false,
       },
     },

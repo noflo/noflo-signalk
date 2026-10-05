@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced ESLint with Biome for formatting and linting, renamed the smoke tests to the `test/*.test.js` convention, and require Node.js 22 or later
+
 ### Fixed
 
 - Runtime startup failures are now reported to Signal K. A failure to start the main graph is reported with the graph name and the cause, and failures in graph preparation no longer go silently unhandled while the plugin shows as Started

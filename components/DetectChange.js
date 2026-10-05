@@ -1,14 +1,14 @@
-const noflo = require('noflo');
+const noflo = require("noflo");
 
 exports.getComponent = () => {
   const c = new noflo.Component();
-  c.description = 'Pass a value only when it changes';
-  c.icon = 'filter';
-  c.inPorts.add('in', {
-    datatype: 'all',
+  c.description = "Pass a value only when it changes";
+  c.icon = "filter";
+  c.inPorts.add("in", {
+    datatype: "all",
   });
-  c.outPorts.add('out', {
-    datatype: 'all',
+  c.outPorts.add("out", {
+    datatype: "all",
   });
   let previousValue;
   let hasReceived = false;
@@ -18,7 +18,7 @@ exports.getComponent = () => {
     callback();
   };
   c.process((input, output) => {
-    const value = input.getData('in');
+    const value = input.getData("in");
     if (!hasReceived) {
       // First packet, don't trigger
       previousValue = value;

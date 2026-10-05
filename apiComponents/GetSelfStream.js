@@ -1,15 +1,15 @@
-const noflo = require('noflo');
+const noflo = require("noflo");
 
 exports.getComponent = (app) => () => {
   const c = new noflo.Component();
-  c.description = 'Listen for new values in a given Signal K path';
-  c.icon = 'inbox';
-  c.inPorts.add('in', {
-    datatype: 'string',
-    description: 'Path to listen to',
+  c.description = "Listen for new values in a given Signal K path";
+  c.icon = "inbox";
+  c.inPorts.add("in", {
+    datatype: "string",
+    description: "Path to listen to",
   });
-  c.outPorts.add('out', {
-    datatype: 'all',
+  c.outPorts.add("out", {
+    datatype: "all",
   });
   let unsubscribes = [];
   c.tearDown = (callback) => {
@@ -21,9 +21,9 @@ exports.getComponent = (app) => () => {
     callback();
   };
   c.process((input, output, context) => {
-    const path = input.getData('in');
+    const path = input.getData("in");
     let initial = app.getSelfPath(path);
-    if (typeof initial === 'object' && initial.meta) {
+    if (typeof initial === "object" && initial.meta) {
       initial = initial.value;
     }
 
@@ -33,13 +33,11 @@ exports.getComponent = (app) => () => {
     });
 
     // Then subscribe
-    const unsub = app.streambundle
-      .getSelfStream(path)
-      .forEach((val) => {
-        output.send({
-          out: val,
-        });
+    const unsub = app.streambundle.getSelfStream(path).forEach((val) => {
+      output.send({
+        out: val,
       });
+    });
     unsubscribes.push({
       context,
       unsub,
