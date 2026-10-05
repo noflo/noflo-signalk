@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- A `signalk/RunDailyAt` generator component that fires once per local day when the onboard time reaches one of the configured times (given as an IIP, a single HH:MM string or an array). It fetches `navigation.datetime` and `environment.time.timezoneOffset` itself, so graphs no longer need separate listener nodes for those paths
+
 ## [0.3.0] - 2026-10-06
 
 ### Changed
