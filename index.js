@@ -1,3 +1,6 @@
+/** @typedef {import("@signalk/server-api").ServerAPI} ServerAPI */
+/** @typedef {import("@signalk/server-api").Plugin} Plugin */
+
 const server = require("noflo-nodejs");
 const nofloServer = require("noflo-nodejs/src/server");
 const fbpGraph = require("fbp-graph");
@@ -5,6 +8,8 @@ const { v4: uuidv4 } = require("uuid");
 const { readdir, mkdir } = require("node:fs/promises");
 const path = require("node:path");
 const componentLoader = require("./componentLoader");
+
+const PLUGIN_ID = "noflo-signalk";
 
 function ensureGraphs(baseDir) {
   const graphDir = path.resolve(baseDir, "./graphs");
@@ -54,12 +59,27 @@ function graphName(graphPath) {
   return path.basename(graphPath, path.extname(graphPath));
 }
 
+/**
+ * NoFlo runtime plugin for Signal K.
+ *
+ * Runs a noflo-nodejs runtime serving the graphs in the Signal K data
+ * directory, so they can be edited in the NoFlo UI and execute Signal K
+ * automation. The main graph starts with the plugin; component loading
+ * gets the Signal K app context via a custom loader.
+ *
+ * @param {ServerAPI} app - Signal K server API
+ * @returns {Plugin}
+ */
 module.exports = (app) => {
   let runtime = null;
   let runtimeConfig = null;
   const plugin = {};
 
-  plugin.id = "noflo-signalk";
+  // Compatibility with servers that only provide the provider-level status API
+  const setStatus = (app.setPluginStatus || app.setProviderStatus)?.bind(app);
+  const setError = (app.setPluginError || app.setProviderError)?.bind(app);
+
+  plugin.id = PLUGIN_ID;
   plugin.name = "NoFlo Signal K";
   plugin.description =
     "Signal K automation with the NoFlo visual programming framework";
@@ -110,33 +130,35 @@ module.exports = (app) => {
     };
     // Report startup progress immediately so Signal K doesn't show the
     // default "Started" state while the async runtime boot is still running
-    app.setPluginStatus("Starting NoFlo runtime");
+    setStatus("Starting NoFlo runtime");
 
     return ensureGraphs(baseDir).then(
       (graphs) => {
         const main = findMain(graphs);
         const mainGraphName = graphName(main);
-        app.setPluginStatus(`Starting main graph ${mainGraphName}`);
+        setStatus(`Starting main graph ${mainGraphName}`);
         return server(main, config, preStart).then(
           (rt) => {
             runtime = rt;
             const boundPort = rt.webServer.address().port;
-            app.setPluginStatus(`NoFlo runtime running in port ${boundPort}`);
+            setStatus(`NoFlo runtime running in port ${boundPort}`);
             // TODO: Start all other graphs as well
           },
           (err) => {
+            app.error(
+              `Failed to start main graph ${mainGraphName}: ${errorMessage(err)}`,
+            );
             app.debug(err);
-            app.setPluginError(
+            setError(
               `Failed to start main graph ${mainGraphName}: ${errorMessage(err)}`,
             );
           },
         );
       },
       (err) => {
+        app.error(`Failed to prepare NoFlo graphs: ${errorMessage(err)}`);
         app.debug(err);
-        app.setPluginError(
-          `Failed to prepare NoFlo graphs: ${errorMessage(err)}`,
-        );
+        setError(`Failed to prepare NoFlo graphs: ${errorMessage(err)}`);
       },
     );
   };
@@ -162,10 +184,11 @@ module.exports = (app) => {
       () => {
         app.debug("NoFlo runtime stopped");
         runtime = null;
+        setStatus("NoFlo stopped");
       },
       (err) => {
-        app.debug("Failed to stop the NoFlo runtime");
-        app.debug(err);
+        app.error("Failed to stop the NoFlo runtime");
+        app.error(err);
       },
     );
   };
@@ -176,34 +199,42 @@ module.exports = (app) => {
     properties: {
       uuid: {
         title: "Server instance UUID",
+        description: "Unique ID for this installation's NoFlo runtime",
         type: "string",
         format: "uuid",
         default: skUuid || uuidv4(),
       },
       secret: {
         title: "Server instance password",
+        description: "Password the NoFlo UI uses to connect to the runtime",
         type: "string",
         default: uuidv4(),
       },
       ide: {
         title: "NoFlo UI instance URL",
+        description: "URL of the NoFlo UI to launch for editing graphs",
         type: "string",
         format: "uri",
         default: "https://app.noflojs.org",
       },
       protocol: {
         title: "FBP protocol transport to use",
+        description: "Transport the NoFlo UI uses to talk to the runtime",
         type: "string",
         enum: ["websocket", "webrtc"],
         default: "websocket",
       },
       port: {
         title: "FBP Protocol port for the IDE to connect to",
+        description:
+          "TCP port the NoFlo runtime listens on for the UI connection",
         type: "number",
         default: 3569,
       },
       trace: {
         title: "Whether to capture and store a Flowtrace for each graph",
+        description:
+          "Captured traces can be inspected later to debug graph behavior",
         type: "boolean",
         default: false,
       },

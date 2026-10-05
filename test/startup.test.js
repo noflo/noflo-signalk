@@ -25,6 +25,7 @@ async function createApp() {
   const app = {
     statuses: [],
     debug: () => {},
+    error: () => {},
     getSelfPath: (p) => (p === "name" ? "Smoke test vessel" : undefined),
     getDataDirPath: () => dataDir,
     setPluginStatus: (message) => {

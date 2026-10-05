@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - Replaced ESLint with Biome for formatting and linting, renamed the smoke tests to the `test/*.test.js` convention, and require Node.js 22 or later
+- Status and error reporting now falls back to the provider-level status API on servers that lack the plugin-level one, log startup and stop failures via `app.error`, and mark the plugin stopped when the runtime shuts down
+
+### Added
+
+- Descriptions for all plugin configuration fields so the admin UI shows hint text
 
 ### Fixed
 

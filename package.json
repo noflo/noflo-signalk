@@ -45,6 +45,7 @@
     "icon": "anchor"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0"
+    "@biomejs/biome": "^2.0.0",
+    "@signalk/server-api": "^2.33.0"
   }
 }
