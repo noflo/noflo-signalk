@@ -32,7 +32,10 @@
   },
   "signalk": {
     "appIcon": "./noflo-72.png",
-    "displayName": "NoFlo Editor"
+    "displayName": "NoFlo Editor",
+    "screenshots": [
+      "./doc/automatic-lights.png",
+    ]
   },
   "noflo": {
     "icon": "anchor"
